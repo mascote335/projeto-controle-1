@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Descarga</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background:
+                linear-gradient(rgba(0, 0, 0, 0.70),
+                    rgba(0, 0, 0, 0.70)),
+                url("imagens/fundo.jpeg");
+
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            padding-bottom: 90px;
+        }
+
+        .card-custom {
+            background-color: rgba(0, 0, 0, 0.123);
+            backdrop-filter: blur(8px);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .status-pendente {
+            background-color: rgba(255, 193, 7, 0.15) !important;
+        }
+
+        .status-finalizado {
+            background-color: rgba(25, 135, 84, 0.18) !important;
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 50px;
+            border-radius: 12px;
+            font-size: 15px;
+        }
+
+        .btn {
+            min-height: 50px;
+            transition: 0.2s;
+
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+            overflow-x: auto;
+        }
+
+        table {
+            min-width: 900px;
+        }
+
+        #contador {
+            font-size: 15px !important;
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+        }
+
+        .collapse .card-custom {
+            animation: aparecer 0.3s ease;
+        }
+
+        @keyframes aparecer {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .rodape {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
+            border-top-left-radius: 12px;
+            padding: 8px 12px;
+        }
+
+        @media (max-width: 768px) {
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            h5 {
+                font-size: 1rem;
+            }
+
+            .card-custom {
+                padding: 18px !important;
+            }
+
+            .btn {
+                width: 100%;
+                font-size: 15px;
+            }
+
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            #contador {
+                text-align: center;
+                width: 100%;
+            }
+
+            .table td,
+            .table th {
+                font-size: 13px;
+                padding: 10px;
+            }
+
+            .form-control,
+            .form-select {
+                font-size: 16px;
+            }
+
+            .rodape {
+                left: 50%;
+                transform: translateX(-50%);
+                right: auto !important;
+                text-align: center;
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-light">
+
+    <div class="container py-4">
+
+        <div class="text-center mb-4">
+            <h1 class="fw-bold">Vale Rio</h1>
+            <h5 class="text-secondary">Agro Industrial</h5>
+        </div>
+
+        <div class="text-center mb-4">
+
+            <button class="btn btn-success px-4 py-3 fw-bold"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#painelLancamento">
+
+                + LANÇAR NOVA CARGA
+
+            </button>
+
+        </div>
+
+        <div class="collapse" id="painelLancamento">
+
+        <div class="card-custom p-4 shadow-lg mb-4">
+
+            <h2 class="text-center text-success fw-bold mb-4">
+                Controle de Descarga
+            </h2>
+
+            <div class="row g-3">
+
+                <div class="col-md-2">
+                    <input type="text" class="form-control text-uppercase" id="senha"
+                        placeholder="Senha">
+                </div>
+
+                <div class="col-md-3">
+                    <input type="text" class="form-control text-uppercase" id="motorista"
+                        placeholder="Motorista">
+                </div>
+
+                <div class="col-md-2">
+                    <input type="text" class="form-control text-uppercase" id="origem"
+                        placeholder="Origem">
+                </div>
+
+                <div class="col-md-2">
+                    <input type="text" class="form-control text-uppercase"
+                        id="placa"
+                        maxlength="8"
+                        placeholder="Placa"
+                        oninput="formatarPlaca(this)">
+                </div>
+
+                <div class="col-md-3">
+                    <textarea class="form-control text-uppercase"
+                        id="comentario"
+                        rows="1"
+                        placeholder="Comentário"></textarea>
+                </div>
+
+                <div class="col-12">
+                    <button class="btn btn-success w-100 fw-bold"
+                        onclick="adicionarCarga()">
+                        LANÇAR CARGA
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        </div>
+
+        <div class="card-custom p-3 mb-4">
+
+            <div class="row g-3 align-items-center">
+
+                <div class="col-md-4">
+                    <label class="form-label">Filtrar por Data</label>
+                    <input type="date" class="form-control" id="filtroData"
+                        onchange="filtrarTabela()">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Filtrar Status</label>
+
+                    <select class="form-select" id="filtroStatus"
+                        onchange="filtrarTabela()">
+
+                        <option value="todos">Todos</option>
+                        <option value="pendente">Não descarregado</option>
+                        <option value="finalizado">Descarregado</option>
+
+                    </select>
+                </div>
+
+                <div class="col-md-4 d-flex align-items-end">
+                    <button class="btn btn-danger w-100"
+                        onclick="limparFiltros()">
+
+                        LIMPAR FILTROS
+
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+
+            <div class="badge bg-success fs-6 p-3"
+                id="contador">
+
+                Total de cargas: 0
+
+            </div>
+
+            <button class="btn btn-success fw-bold"
+                onclick="baixarCSV()">
+
+                EXPORTAR CSV
+
+            </button>
+
+        </div>
+
+        <div class="card-custom p-3 shadow-lg">
+
+            <div class="table-responsive">
+
+                <table class="table table-dark table-hover table-bordered text-center align-middle">
+
+                    <thead>
+
+                        <tr>
+                            <th>Senha</th>
+                            <th>Motorista</th>
+                            <th>Origem</th>
+                            <th>Placa</th>
+                            <th>Comentário</th>
+                            <th>Status</th>
+                            <th>Data/Hora</th>
+                            <th>Ações</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tabelaBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="position-fixed bottom-0 end-0 m-2 text-secondary small rodape">
+        Desenvolvido por: Kauan Tonelli Lopes
+    </div>
+
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            onSnapshot,
+            deleteDoc,
+            doc,
+            updateDoc
+        } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyAjsVMJYI-Q8vslnqXxGFBRgD14I8pUnYc",
+  authDomain: "projetck-3d4b9.firebaseapp.com",
+  projectId: "projetck-3d4b9",
+  storageBucket: "projetck-3d4b9.firebasestorage.app",
+  messagingSenderId: "1067184958937",
+  appId: "1:1067184958937:web:3244d8c5a66d242366bdc8",
+  measurementId: "G-S1PZEJT73V"
+};
+
+        const app = initializeApp(firebaseConfig);
+
+        const db = getFirestore(app);
+
+        let cargas = [];
+
+        document.addEventListener('input', function (e) {
+
+            if (
+                e.target.tagName === 'INPUT' ||
+                e.target.tagName === 'TEXTAREA'
+            ) {
+                e.target.value = e.target.value.toUpperCase();
+            }
+
+        });
+
+        window.formatarPlaca = function (input) {
+
+            let valor = input.value
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, '');
+
+            valor = valor.substring(0, 7);
+
+            if (valor.length > 3) {
+                valor = valor.substring(0, 3) + '-' + valor.substring(3);
+            }
+
+            input.value = valor;
+        }
+
+        onSnapshot(collection(db, "cargas"), (snapshot) => {
+
+            cargas = [];
+
+            snapshot.forEach((item) => {
+
+                cargas.push({
+                    id: item.id,
+                    ...item.data()
+                });
+
+            });
+
+            cargas.sort((a, b) => a.senha - b.senha);
+
+            atualizarTabela();
+
+        });
+
+        window.adicionarCarga = async function () {
+
+            const senha =
+                document.getElementById('senha').value;
+
+            const motorista =
+                document.getElementById('motorista').value;
+
+            const origem =
+                document.getElementById('origem').value;
+
+            const placa =
+                document.getElementById('placa').value;
+
+            const comentario =
+                document.getElementById('comentario').value;
+
+            if (
+                !senha ||
+                !motorista ||
+                !origem ||
+                !placa
+            ) {
+
+                alert('Preencha todos os campos');
+                return;
+            }
+
+            await addDoc(collection(db, "cargas"), {
+
+                senha: Number(senha),
+                motorista,
+                origem,
+                placa,
+                comentario,
+                status: 'pendente',
+                data: new Date().toLocaleString('pt-BR'),
+                dataFiltro: new Date().toISOString().split('T')[0]
+
+            });
+
+            limparCampos();
+        }
+
+        function limparCampos() {
+
+            document.getElementById('senha').value = '';
+            document.getElementById('motorista').value = '';
+            document.getElementById('origem').value = '';
+            document.getElementById('placa').value = '';
+            document.getElementById('comentario').value = '';
+        }
+
+        function atualizarTabela(lista = cargas) {
+
+            const tabela =
+                document.getElementById('tabelaBody');
+
+            const contador =
+                document.getElementById('contador');
+
+            tabela.innerHTML = '';
+
+            lista.forEach((carga, index) => {
+
+                tabela.innerHTML += `
+
+                <tr class="${carga.status === 'finalizado'
+                        ? 'status-finalizado'
+                        : 'status-pendente'}">
+
+                    <td>${carga.senha}</td>
+                    <td>${carga.motorista}</td>
+                    <td>${carga.origem}</td>
+                    <td>${carga.placa}</td>
+                    <td>${carga.comentario || '-'}</td>
+
+                    <td>
+
+                        <span class="badge ${carga.status === 'finalizado'
+                        ? 'bg-success'
+                        : 'bg-warning text-dark'}">
+
+                            ${carga.status === 'finalizado'
+                        ? 'DESCARREGADO'
+                        : 'PENDENTE'}
+
+                        </span>
+
+                    </td>
+
+                    <td>${carga.data}</td>
+
+                    <td>
+
+                        <div class="d-flex flex-column gap-2">
+
+                            <button class="btn btn-sm btn-success"
+                                onclick="alterarStatus(${index})">
+
+                                ${carga.status === 'finalizado'
+                        ? 'VOLTAR'
+                        : 'FINALIZAR'}
+
+                            </button>
+
+                            <button class="btn btn-danger btn-sm"
+                                onclick="excluirCarga(${index})">
+
+                                EXCLUIR
+
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+                `;
+            });
+
+            contador.innerText =
+                `Total de cargas: ${lista.length}`;
+        }
+
+        window.alterarStatus = async function (index) {
+
+            const novoStatus =
+                cargas[index].status === 'pendente'
+                    ? 'finalizado'
+                    : 'pendente';
+
+            await updateDoc(
+                doc(db, "cargas", cargas[index].id),
+                {
+                    status: novoStatus
+                }
+            );
+        }
+
+        window.excluirCarga = async function (index) {
+
+            if (confirm('Deseja excluir esta carga?')) {
+
+                await deleteDoc(
+                    doc(db, "cargas", cargas[index].id)
+                );
+            }
+        }
+
+        window.filtrarTabela = function () {
+
+            const dataFiltro =
+                document.getElementById('filtroData').value;
+
+            const statusFiltro =
+                document.getElementById('filtroStatus').value;
+
+            let listaFiltrada = cargas;
+
+            if (dataFiltro) {
+
+                listaFiltrada = listaFiltrada.filter(
+                    carga => carga.dataFiltro === dataFiltro
+                );
+            }
+
+            if (statusFiltro !== 'todos') {
+
+                listaFiltrada = listaFiltrada.filter(
+                    carga => carga.status === statusFiltro
+                );
+            }
+
+            atualizarTabela(listaFiltrada);
+        }
+
+        window.limparFiltros = function () {
+
+            document.getElementById('filtroData').value = '';
+            document.getElementById('filtroStatus').value = 'todos';
+
+            atualizarTabela();
+        }
+
+        window.baixarCSV = function () {
+
+            if (cargas.length === 0) {
+
+                alert('Nenhuma carga cadastrada');
+                return;
+            }
+
+            let csv =
+                'Senha,Motorista,Origem,Placa,Comentario,Status,Data/Hora\n';
+
+            cargas.forEach(carga => {
+
+                csv +=
+                    `${carga.senha},${carga.motorista},${carga.origem},${carga.placa},${carga.comentario},${carga.status},${carga.data}\n`;
+            });
+
+            const blob =
+                new Blob([csv], { type: 'text/csv' });
+
+            const link =
+                document.createElement('a');
+
+            link.href =
+                URL.createObjectURL(blob);
+
+            link.download =
+                'controle_descarga.csv';
+
+            document.body.appendChild(link);
+
+            link.click();
+
+            document.body.removeChild(link);
+        }
+
+    </script>
+
+</body>
+
+</html>
